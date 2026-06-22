@@ -1,0 +1,57 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Create dataset inside the code
+movies = pd.DataFrame({
+    'title': [
+        'Toy Story',
+        'Finding Nemo',
+        'Cars',
+        'Frozen',
+        'Titanic',
+        'Avatar',
+        'Avengers',
+        'Iron Man',
+        'The Dark Knight',
+        'Joker'
+    ],
+    'genres': [
+        'Animation Comedy Family',
+        'Animation Adventure Comedy',
+        'Animation Adventure Comedy',
+        'Animation Family Musical',
+        'Drama Romance',
+        'Action Adventure Sci-Fi',
+        'Action Adventure Sci-Fi',
+        'Action Sci-Fi',
+        'Action Crime Drama',
+        'Crime Drama Thriller'
+    ]
+})
+
+# Convert genres to vectors
+tfidf = TfidfVectorizer(stop_words='english')
+tfidf_matrix = tfidf.fit_transform(movies['genres'])
+
+# Calculate similarity
+cosine_sim = cosine_similarity(tfidf_matrix)
+
+# Recommendation function
+def recommend_movies(movie_name):
+    if movie_name not in movies['title'].values:
+        print("Movie not found!")
+        return
+
+    idx = movies[movies['title'] == movie_name].index[0]
+
+    similarity_scores = list(enumerate(cosine_sim[idx]))
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+
+    print("\nRecommended Movies:")
+    for i in similarity_scores[1:6]:
+        print(movies.iloc[i[0]]['title'])
+
+# User input
+movie = input("Enter a movie name: ")
+recommend_movies(movie)
